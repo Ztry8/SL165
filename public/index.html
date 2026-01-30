@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+    <link rel="icon" href="logo.png" type="image/png">
+    <title>SL165 - Olymp</title>
+    <link rel="stylesheet" href="index.css">
+  </meta>
+</head>
+<body>
+
+<div class="hero">
+  <h1 style="color: white;">Специализированный лицей № 165, Алматы</h1>
+  <p>
+    Государственное учебное заведение с углублённым академическим уклоном. 
+    <br>
+    Готовит учеников к олимпиадам, высоким образовательным результатам и лидерству
+  </p>
+</div>
+
+<header>
+  <a href="index.html" class="logo"><img src="logo.png" alt="Logo"></a>
+  <nav>
+    <a href="add.html">Добавить Диплом</a>
+    <a href="delete.html">Удалить Диплом</a>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="filters">
+    <input id="namePerson" placeholder="Имя">
+    <input id="year" placeholder="Год победы">
+    <input id="classNum" placeholder="Класс">
+    <input id="title" placeholder="Название и предмет">
+    <select id="stage">
+      <option value="Школьный">Школьный</option>
+      <option value="Городской">Городской</option>
+      <option value="Республиканский">Республиканский</option>
+      <option value="Международный">Международный</option>
+    </select>
+    <button onclick="load(true)">Искать</button>
+    <button onclick="load(false)">Все дипломы</button>
+  </div>
+
+  <div class="bottom-panel">
+    <div class="sidebar">
+      <ul id="list"></ul>
+    </div>
+
+    <div class="main-content">
+      <h1>Специализированный лицей 165</h1>
+      <h3>
+        SL165_OLYMP — это удобная цифровая платформа для быстрого доступа к результатам олимпиад, школьным новостям и важным событиям. Он также сохраняет историю лицея в электронном формате через достижения учеников и значимые моменты школьной жизни.
+      </h3>
+
+      <h3>
+        Проект создан на JavaScript, что обеспечивает интерактивность, гибкость и возможность дальнейшего расширения функций сайта. Использование NPM упрощает подключение библиотек, а Netlify позволяет быстро разместить сайт и автоматически обновлять его. ChatGPT применяется как помощник в разработке — для работы с кодом и исправления ошибок.
+      </h3>
+
+      <h3>
+      Этот сайт отражает современность, активность и высокий уровень школы №165, объединяя учеников, учителей и родителей в едином информационном пространстве.
+      </h3>
+
+      <h3>
+        <br>
+        <a href="https://www.instagram.com/_sl165">Инстаграм</a>
+        <br>
+        <a href="https://t.me/sl165_official">Телеграм</a>
+      </h3>
+    </div>
+  </div>
+</div>
+
+<script>
+async function load(stage_x) {
+  const nameField = document.getElementById('namePerson');
+  const yearField = document.getElementById('year');
+  const classField = document.getElementById('classNum');
+  const titleField = document.getElementById('title');
+  const stageField = document.getElementById('stage');
+
+  const params = new URLSearchParams();
+
+  if (stage_x === true) {
+    if (nameField && nameField.value.trim() !== '') params.append('namePerson', nameField.value.trim());
+    if (yearField && yearField.value.trim() !== '') params.append('year', yearField.value.trim());
+    if (classField && classField.value.trim() !== '') params.append('class', classField.value.trim());
+    if (titleField && titleField.value.trim() !== '') params.append('title', titleField.value.trim());
+    if (stageField && stageField.value) params.append('stage', stageField.value);
+  }
+
+  const res = await fetch('/.netlify/functions/people?' + params.toString());
+  const data = await res.json();
+
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+
+  data.forEach(p => {
+    const li = document.createElement('li');
+    // li.innerHTML = `<strong>${p.namePerson}</strong> (${p.birth_year}), Класс: ${p.classNum}, ${p.title}, ${p.stage} этап - ID: ${p.id}<br>`;
+    
+    li.innerHTML = `
+      <strong>${p.namePerson}</strong>
+      <ul>
+        <li>Год: ${p.birth_year}</li>
+        <li>Класс: ${p.classNum}</li>
+        <li>Название: ${p.title}</li>
+        <li>Этап: ${p.stage}</li>
+        <li>ID: ${p.id}</li>
+      </ul>
+    `;
+    
+    // if (p.photos && Array.isArray(p.photos)) {
+    //   p.photos.forEach(photo => {
+    //     const img = document.createElement('img');
+    //     img.src = photo;
+    //     img.width = 100;
+    //     img.alt = p.namePerson;
+    //     li.appendChild(img);
+    //   });
+    // }
+
+    if (p.photos && Array.isArray(p.photos) && p.photos.length > 0) {
+      const photoList = document.createElement('ul');
+      p.photos.forEach(photo => {
+        const photoLi = document.createElement('li');
+        const img = document.createElement('img');
+        img.src = photo;
+        img.width = 100;
+        img.alt = p.namePerson;
+        photoLi.appendChild(img);
+        photoList.appendChild(photoLi);
+      });
+      li.appendChild(photoList);
+    }
+
+    list.appendChild(li);
+  });
+}
+
+load(false);
+</script>
+</body>
+</html>
